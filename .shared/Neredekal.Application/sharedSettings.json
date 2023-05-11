@@ -1,0 +1,10 @@
+{
+  "BaseUrl": {
+    "GateWay": ""
+  },
+  "Endpoint": {
+    "UserApi": {
+      "UserConfirm": "user-confirm"
+    }
+  }
+}

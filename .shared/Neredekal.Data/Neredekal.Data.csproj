@@ -5,4 +5,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Bson" Version="2.19.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Neredekal.Application\Neredekal.Application.csproj" />
+    <ProjectReference Include="..\Neredekal.Core\Neredekal.Core.csproj" />
+  </ItemGroup>
+
 </Project>

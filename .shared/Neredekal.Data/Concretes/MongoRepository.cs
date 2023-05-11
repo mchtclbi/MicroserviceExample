@@ -1,29 +1,40 @@
 ﻿using System;
 using System.Linq;
 using MongoDB.Driver;
+using Neredekal.Core.Models;
 using System.Linq.Expressions;
 using Neredekal.Data.Entities;
 using Neredekal.Data.Interfaces;
 using System.Collections.Generic;
+using Neredekal.Application.Helper;
 
 namespace Neredekal.Data.Concretes
 {
     public class MongoRepository<T> : IMongoRepository<T> where T : BaseEntity, new()
     {
         private readonly IMongoDatabase _mongoDatabase;
+        private readonly MongoDbConnectionModel _connectionModel;
 
         public MongoRepository()
         {
-            if (_mongoDatabase == null)
-                _mongoDatabase = new MongoClient("connection string").GetDatabase("db name");
+            if (_connectionModel is null)
+                _connectionModel = ReadConfig.Get<MongoDbConnectionModel>("MongoDb");
+
+            if (_mongoDatabase is null)
+                _mongoDatabase = new MongoClient(_connectionModel.ConnectionString)
+                    .GetDatabase(_connectionModel.DatabaseName);
         }
 
         public void Add(T entity) => GetCollection().InsertOne(entity);
+        
         public void Delete(T entity) => GetCollection().DeleteOne(q => q.Id == entity.Id);
+
         public void Update(T entity) => GetCollection().ReplaceOne(q => q.Id == entity.Id, entity);
 
         public IQueryable<T> GetQueryable() => GetCollection().AsQueryable();
+        
         public T Get(Expression<Func<T, bool>> filter) => GetCollection().Find(filter).FirstOrDefault();
+        
         public List<T> GetAll(Expression<Func<T, bool>>? filter = null)
         {
             return filter == null
