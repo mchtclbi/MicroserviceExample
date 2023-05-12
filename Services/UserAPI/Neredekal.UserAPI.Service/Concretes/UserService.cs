@@ -12,11 +12,11 @@ namespace Neredekal.UserAPI.Service.Concretes
 {
     public class UserService : IUserService
     {
-        private readonly IMongoRepository<User> _mongoRepository;
+        private readonly IMongoRepository<User> _userRepository;
 
         public UserService()
         {
-            _mongoRepository = new MongoRepository<User>();
+            _userRepository = new MongoRepository<User>();
         }
 
         public BaseResponse<object> CreateDummyUser()
@@ -31,10 +31,9 @@ namespace Neredekal.UserAPI.Service.Concretes
                 EMail = "testuser@neredekal.com",
                 Password = Encrypt.MD5("123456"),
                 IsActive = true,
-                CreatedDate = DateTime.Now
             };
 
-            _mongoRepository.Add(user);
+            _userRepository.Add(user);
 
             user.Password = "123456";
 
@@ -52,7 +51,7 @@ namespace Neredekal.UserAPI.Service.Concretes
             {
                 var passwordHash = Encrypt.MD5(request.Password);
 
-                var user = _mongoRepository.Get(q => q.EMail.Equals(request.UserName) 
+                var user = _userRepository.Get(q => q.EMail.Equals(request.UserName) 
                 && q.Password.Equals(passwordHash)
                 && q.IsActive);
                 if (user is null)
