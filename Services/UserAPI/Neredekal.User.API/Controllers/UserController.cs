@@ -13,7 +13,10 @@ namespace Neredekal.User.API.Controllers
             _userService= userService;
         }
 
-        [HttpGet("user-confirm")]
+        [HttpPost("api/user/create-dummy")]
+        public IActionResult Create() => Ok(_userService.CreateDummyUser());
+
+        [HttpPost("api/user/confirm")]
         public IActionResult UserConfirm([FromBody] UserConfirmRequest request) => Ok(_userService.UserConfirm(request));
     }
 }

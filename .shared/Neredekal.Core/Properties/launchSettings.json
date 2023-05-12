@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Neredekal.Core": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:61417;http://localhost:61418"
+    }
+  }
+}

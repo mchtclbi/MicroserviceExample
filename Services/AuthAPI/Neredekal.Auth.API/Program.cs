@@ -1,31 +1,35 @@
 using System.Text;
-//using Microsoft.IdentityModel.Tokens;
-//using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Neredekal.AuthAPI.Service.Concretes;
+using Neredekal.AuthAPI.Service.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-//}).AddJwtBearer(o =>
-//{
-//    o.TokenValidationParameters = new TokenValidationParameters
-//    {
-//        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-//        ValidAudience = builder.Configuration["Jwt:Audience"],
-//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-//        ValidateIssuer = true,
-//        ValidateAudience = true,
-//        ValidateLifetime = false,
-//        ValidateIssuerSigningKey = true
-//    };
-//});
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(o =>
+{
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = false,
+        ValidateIssuerSigningKey = true
+    };
+});
 
-builder.Configuration.AddJsonFile("sharedSettings.json", optional: false, reloadOnChange: false);
+builder.Services.AddSingleton<IAuthService, AuthService>();
+
+//builder.Configuration.AddJsonFile("sharedSettings.json", optional: false, reloadOnChange: false);
 
 builder.Services.AddControllers();
 

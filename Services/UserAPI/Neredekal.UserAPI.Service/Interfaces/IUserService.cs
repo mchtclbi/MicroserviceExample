@@ -6,6 +6,8 @@ namespace Neredekal.UserAPI.Service.Interfaces
 {
     public interface IUserService
     {
+        public BaseResponse<object> CreateDummyUser();
+
         public BaseResponse<UserConfirmResponse> UserConfirm(UserConfirmRequest request);
     }
 }

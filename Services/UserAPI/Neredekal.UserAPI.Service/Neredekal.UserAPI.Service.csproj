@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Neredekal.UserAPI.Models\Neredekal.UserAPI.Models.csproj" />
+  </ItemGroup>
+
 </Project>

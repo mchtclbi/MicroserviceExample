@@ -1,6 +1,5 @@
 ﻿using RestSharp;
 using System.Text;
-using System.Text.Json;
 using Neredekal.RestHelper;
 using System.Security.Claims;
 using Neredekal.AuthAPI.Models;
@@ -19,48 +18,48 @@ namespace Neredekal.AuthAPI.Service.Concretes
     public class AuthService : IAuthService
     {
         private readonly JWTModel _jwtModel;
+        private readonly UserApiUrl _userApiUrl;
         private readonly IConfiguration _configuration;
 
         public AuthService(IConfiguration configuration)
         {
             _configuration = configuration;
             _jwtModel = _jwtModel ?? _configuration.GetSection("JWt").Get<JWTModel>();
+            _userApiUrl = _userApiUrl ?? _configuration.GetSection("Url").GetSection("UserApi").Get<UserApiUrl>();
         }
 
         public async Task<BaseResponse<CreateTokenResponse>> CreateToken(CreateTokenRequest request)
         {
             var response = new BaseResponse<CreateTokenResponse>();
 
-            var baseurl = _configuration.GetSection("BaseUrl").GetValue<string>("Gateway");
-            var endpoint = _configuration.GetSection("Endpoint").GetSection("UserApi").GetValue<string>("UserConfirm");
-
-            SendRestRequest restRequest = new SendRestRequest(baseurl);
-            var serviceResponse = await restRequest.RunAsync<BaseResponse<UserConfirmResponse>>(new RestRequestModel()
+            try
             {
-                Endpoint = endpoint,
-                Method = Method.Post,
-                Content = new JsonContent(),
-                Data = request
-            });
+                SendRestRequest restRequest = new SendRestRequest(_userApiUrl.BaseUrl);
+                var serviceResponse = await restRequest.RunAsync<BaseResponse<UserConfirmResponse>>(new RestRequestModel()
+                {
+                    Endpoint = _userApiUrl.Endpoint.UserConfirm,
+                    Method = Method.Post,
+                    Content = new JsonContent(),
+                    Data = request
+                });
 
-            if (serviceResponse == null || !string.IsNullOrEmpty(serviceResponse.Content))
-            {
-                response.SetMessage("Kullanıcı bilgileri alınamadı.");
-                return response;
+                if (serviceResponse == null || serviceResponse.Data == null || string.IsNullOrEmpty(serviceResponse.Content))
+                {
+                    response.SetMessage("user informations not read.");
+                    return response;
+                }
+
+                response.SetMessage("transaction is success", true);
+                response.Data = new CreateTokenResponse()
+                {
+                    UserId = serviceResponse.Data.Data.Id,
+                    Token = CreateJWTToken(serviceResponse.Data.Data.Id)
+                };
             }
-
-            var data = JsonSerializer.Deserialize<BaseResponse<UserConfirmResponse>>(serviceResponse.Content);
-            if (data == null || !data.IsSuccess)
+            catch (Exception)
             {
-                response.SetMessage("Kullanıcı bilgileri alınamadı.");
-                return response;
+                response.SetMessage("Please try again later!");
             }
-
-            response.SetMessage("transaction is success", true);
-            response.Data = new CreateTokenResponse()
-            {
-                Token = CreateJWTToken(data.Data.Id)
-            };
 
             return response;
         }

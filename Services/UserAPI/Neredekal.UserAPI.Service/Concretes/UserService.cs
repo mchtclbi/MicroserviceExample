@@ -1,4 +1,5 @@
 ﻿using Neredekal.UserAPI.Models;
+using Neredekal.Data.Concretes;
 using Neredekal.Data.Interfaces;
 using Neredekal.Application.Helper;
 using Neredekal.UserAPI.Models.Request;
@@ -13,9 +14,34 @@ namespace Neredekal.UserAPI.Service.Concretes
     {
         private readonly IMongoRepository<User> _mongoRepository;
 
-        public UserService(IMongoRepository<User> mongoRepository)
+        public UserService()
         {
-            _mongoRepository = mongoRepository;
+            _mongoRepository = new MongoRepository<User>();
+        }
+
+        public BaseResponse<object> CreateDummyUser()
+        {
+            var response = new BaseResponse<object>();
+
+            var user = new User()
+            {
+                Id = Guid.NewGuid(),
+                Name = "UserName",
+                Surname = "UserSurname",
+                EMail = "testuser@neredekal.com",
+                Password = Encrypt.MD5("123456"),
+                IsActive = true,
+                CreatedDate = DateTime.Now
+            };
+
+            _mongoRepository.Add(user);
+
+            user.Password = "123456";
+
+            response.Data = user;
+            response.SetMessage("Dummy user created", true);
+
+            return response;
         }
 
         public BaseResponse<UserConfirmResponse> UserConfirm(UserConfirmRequest request)
