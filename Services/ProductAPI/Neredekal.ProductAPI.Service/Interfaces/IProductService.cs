@@ -1,6 +1,7 @@
 ﻿using Neredekal.ProductAPI.Models.Request;
 using Neredekal.ProductAPI.Models.Response;
 using Neredekal.Application.Models.Response;
+using Neredekal.ProductAPI.Models.Entities;
 
 namespace Neredekal.ProductAPI.Service.Interfaces
 {
@@ -15,5 +16,7 @@ namespace Neredekal.ProductAPI.Service.Interfaces
         public BaseResponse<List<GetProductAuthorizedResponse>> GetProductAuthorized(GetProductAuthorizedRequest request);
 
         public BaseResponse<List<GetProductDetailResponse>> GetProductDetail(GetProductDetailRequest request);
+
+        public BaseResponse<List<ProductCommuncationType>> CreateCommunicationType();
     }
 }

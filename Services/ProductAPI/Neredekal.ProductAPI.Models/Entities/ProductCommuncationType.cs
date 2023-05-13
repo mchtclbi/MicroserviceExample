@@ -1,6 +1,8 @@
-﻿namespace Neredekal.ProductAPI.Models.Entities
+﻿using Neredekal.Data.Entities;
+
+namespace Neredekal.ProductAPI.Models.Entities
 {
-    public class ProductCommuncationType
+    public class ProductCommuncationType : BaseEntity
     {
         public string Name { get; set; }
     }
