@@ -1,7 +1,7 @@
 ﻿using Neredekal.ProductAPI.Models.Request;
 using Neredekal.ProductAPI.Models.Response;
-using Neredekal.Application.Models.Response;
 using Neredekal.ProductAPI.Models.Entities;
+using Neredekal.Application.Models.Response;
 
 namespace Neredekal.ProductAPI.Service.Interfaces
 {
@@ -20,5 +20,7 @@ namespace Neredekal.ProductAPI.Service.Interfaces
         public BaseResponse<List<ProductCommuncationType>> CreateCommunicationType();
         
         public BaseResponse<List<ProductCommuncationType>> GetCommunicationType();
+
+        public BaseResponse<object> CreateNewReportDemand();
     }
 }

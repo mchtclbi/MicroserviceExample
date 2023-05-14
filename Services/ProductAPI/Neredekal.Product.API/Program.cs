@@ -17,7 +17,7 @@ builder.Services.AddAuthentication(options =>
     {
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty)),
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = false,
@@ -27,6 +27,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddSingleton<IProductService, ProductService>();
+builder.Services.AddSingleton<IRabbitMQSProducer, RabbitMQProducer>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddControllers();
 

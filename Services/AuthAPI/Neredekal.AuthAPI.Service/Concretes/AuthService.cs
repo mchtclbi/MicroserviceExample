@@ -24,8 +24,8 @@ namespace Neredekal.AuthAPI.Service.Concretes
         public AuthService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _jwtModel = _jwtModel ?? _configuration.GetSection("JWt").Get<JWTModel>();
-            _userApiUrl = _userApiUrl ?? _configuration.GetSection("Url").GetSection("UserApi").Get<UserApiUrl>();
+            _jwtModel ??= _configuration.GetSection("JWt").Get<JWTModel>();
+            _userApiUrl ??= _configuration.GetSection("Url").GetSection("UserApi").Get<UserApiUrl>();
         }
 
         public async Task<BaseResponse<CreateTokenResponse>> CreateToken(CreateTokenRequest request)

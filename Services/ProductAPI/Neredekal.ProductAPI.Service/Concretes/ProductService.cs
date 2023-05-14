@@ -1,24 +1,35 @@
 ﻿using Neredekal.Data.Concretes;
 using Neredekal.Data.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Neredekal.ProductAPI.Models;
+using Microsoft.Extensions.Primitives;
+using Neredekal.ProductAPI.Models.Enums;
 using Neredekal.ProductAPI.Models.Request;
 using Neredekal.ProductAPI.Models.Entities;
 using Neredekal.ProductAPI.Models.Response;
 using Neredekal.Application.Models.Response;
 using Neredekal.ProductAPI.Service.Interfaces;
-using System.Collections.Generic;
 
 namespace Neredekal.ProductAPI.Service.Concretes
 {
     public class ProductService : IProductService
     {
+        private readonly IHttpContextAccessor _httpContext;
+        private readonly IRabbitMQSProducer _rabbitMQSProducer;
+
         private readonly IMongoRepository<Product> _productRepository;
+        private readonly IMongoRepository<ReportDemand> _reportDemandRepository;
         private readonly IMongoRepository<ProductCommunication> _productCommunicationRepository;
         private readonly IMongoRepository<ProductCommuncationType> _productCommuncationTypeRepository;
 
-        public ProductService()
+
+        public ProductService(IHttpContextAccessor httpContext, IRabbitMQSProducer rabbitMQSProducer)
         {
+            _httpContext = httpContext;
+            _rabbitMQSProducer = rabbitMQSProducer;
+
             _productRepository = new MongoRepository<Product>();
+            _reportDemandRepository = new MongoRepository<ReportDemand>();
             _productCommunicationRepository = new MongoRepository<ProductCommunication>();
             _productCommuncationTypeRepository = new MongoRepository<ProductCommuncationType>();
         }
@@ -55,7 +66,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
                     });
                 }
 
-                response.SetMessage("transaction is success", true);
+                response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
             catch (Exception)
             {
@@ -79,7 +90,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 }
 
                 _productRepository.Delete(product);
-                response.SetMessage("transaction is success", true);
+                response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
             catch (Exception)
             {
@@ -107,7 +118,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
                     });
                 });
 
-                response.SetMessage("transaction is success", true);
+                response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
             catch (Exception)
             {
@@ -131,7 +142,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 }
 
                 _productCommunicationRepository.Delete(productCommunication);
-                response.SetMessage("transaction is success", true);
+                response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
             catch (Exception)
             {
@@ -160,7 +171,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 });
 
                 response.Data = data;
-                response.SetMessage("transaction is success", true);
+                response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
             catch (Exception)
             {
@@ -202,7 +213,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 });
 
                 response.Data = data;
-                response.SetMessage("transaction is success", true);
+                response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
             catch (Exception)
             {
@@ -231,7 +242,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 });
 
                 response.Data = items;
-                response.SetMessage("transaction is success", true);
+                response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
             catch (Exception)
             {
@@ -248,7 +259,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
             try
             {
                 response.Data = _productCommuncationTypeRepository.GetAll(q => q.IsActive);
-                response.SetMessage("transaction is success", true);
+                response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
             catch (Exception)
             {
@@ -256,6 +267,51 @@ namespace Neredekal.ProductAPI.Service.Concretes
             }
 
             return response;
+        }
+
+        public BaseResponse<object> CreateNewReportDemand()
+        {
+            var response = new BaseResponse<object>();
+
+            try
+            {
+                var token = GetTokenWithHeader();
+                if (token is null)
+                {
+                    response.SetMessage("transaction is fail");
+                    return response;
+                }
+
+                var reportDemand = new ReportDemand()
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = Guid.Parse(new TokenService().GetUserIdWithToken(token)),
+                    DemandDate = DateTime.Now,
+                    Status = ReportDemandStatus.Preparing,
+                    IsActive = true
+                };
+
+                _reportDemandRepository.Add(reportDemand);
+                _rabbitMQSProducer.SendProductMessage(reportDemand.Id.ToString());
+
+                response.SetMessage(ConstantMessage.TransactionSuccess, true);
+            }
+            catch (Exception)
+            {
+                response.SetMessage(ConstantMessage.ExceptionMessage);
+            }
+
+            return response;
+        }
+
+        private string? GetTokenWithHeader()
+        {
+            StringValues token = new StringValues();
+
+            var result = _httpContext.HttpContext?.Request.Headers.TryGetValue("Authorization", out token);
+            if (result.HasValue && !result.Value) return null;
+
+            return token.ToString().Split("Bearer ").Last();
         }
     }
 }

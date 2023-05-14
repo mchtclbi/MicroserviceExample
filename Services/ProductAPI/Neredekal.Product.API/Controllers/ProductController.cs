@@ -15,8 +15,8 @@ namespace Neredekal.Product.API.Controllers
             _productService = productService;
         }
 
-        //TODO permission control and request model validaton control with fluent validation
-
+        //TODO permission control
+        //and request model validaton control with fluent validation
 
         [HttpPost("/api/product/add")]
         public IActionResult Add([FromBody] CreateProductRequest request) => Ok(_productService.Add(request));
@@ -45,5 +45,8 @@ namespace Neredekal.Product.API.Controllers
 
         [HttpGet("/api/product/communication-type")]
         public IActionResult GetCommunicationType() => Ok(_productService.GetCommunicationType());
+
+        [HttpPost("api/product/report")]
+        public IActionResult CreateNewReportDemand() => Ok(_productService.CreateNewReportDemand());
     }
 }
