@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Neredekal.ProductAPI.Models.Request;
 using Neredekal.ProductAPI.Service.Interfaces;
 
 namespace Neredekal.Product.API.Controllers
 {
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -13,10 +15,13 @@ namespace Neredekal.Product.API.Controllers
             _productService = productService;
         }
 
-        [HttpPost("/api/product")]
+        //TODO permission control and request model validaton control with fluent validation
+
+
+        [HttpPost("/api/product/add")]
         public IActionResult Add([FromBody] CreateProductRequest request) => Ok(_productService.Add(request));
 
-        [HttpDelete("/api/product")]
+        [HttpDelete("/api/product/delete")]
         public IActionResult Delete([FromBody] CreateProductRequest request) => Ok(_productService.Add(request));
 
         [HttpPost("/api/product/communication")]
@@ -37,5 +42,8 @@ namespace Neredekal.Product.API.Controllers
 
         [HttpPost("/api/product/communication-type")]
         public IActionResult CreateCommunicationType() => Ok(_productService.CreateCommunicationType());
+
+        [HttpGet("/api/product/communication-type")]
+        public IActionResult GetCommunicationType() => Ok(_productService.GetCommunicationType());
     }
 }

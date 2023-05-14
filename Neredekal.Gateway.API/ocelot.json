@@ -1,7 +1,7 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/api/auth/login",
+      "DownstreamPathTemplate": "/api/auth/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -9,11 +9,12 @@
           "Port": 7155
         }
       ],
-      "UpstreamPathTemplate": "/api/gateway/auth",
-      "UpstreamHttpMethod": [ "Post" ]
+      "UpstreamPathTemplate": "/api/gateway/auth/{everything}",
+      "UpstreamHttpMethod": [ "POST" ]
     },
+
     {
-      "DownstreamPathTemplate": "/api/user/create-dummy",
+      "DownstreamPathTemplate": "/api/user/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -21,8 +22,20 @@
           "Port": 7062
         }
       ],
-      "UpstreamPathTemplate": "/api/gateway/user",
-      "UpstreamHttpMethod": [ "Post" ]
+      "UpstreamPathTemplate": "/api/gateway/user/{everything}",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/product/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7048
+        }
+      ],
+      "UpstreamPathTemplate": "/api/gateway/product/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
     }
   ],
   "GlobalConfiguration": {

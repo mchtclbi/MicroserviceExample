@@ -102,6 +102,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
                         Id = Guid.NewGuid(),
                         TypeId = q.Id,
                         ProductId = request.ProductId,
+                        Value = q.Value,
                         IsActive = true
                     });
                 });
@@ -178,10 +179,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 var products = _productRepository.GetAll(q => q.IsActive);
 
                 var productIds = products.Select(s => s.Id).ToList();
-
-                var productCommunications = _productCommunicationRepository
-                    .GetAll(q => productIds.Contains(q.Id) && q.IsActive);
-
+                var productCommunications = _productCommunicationRepository.GetAll(q => q.IsActive);
                 var productCommunicationType = _productCommuncationTypeRepository.GetAll(q => q.IsActive);
 
                 var data = new List<GetProductDetailResponse>();
@@ -190,10 +188,11 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 {
                     data.Add(new GetProductDetailResponse()
                     {
+                        Id = q.Id,
                         AuthorizedName = q.AuthorizedName,
                         AuthorizedSurname = q.AuthorizedSurname,
                         CompanyTitle = q.CompanyTitle,
-                        Communications = productCommunications.Where(q => q.ProductId == q.Id)
+                        Communications = productCommunications.Where(w => w.ProductId == q.Id)
                         .Select(s => new CommunicationViewModel()
                         {
                             Value = s.Value,
@@ -217,20 +216,44 @@ namespace Neredekal.ProductAPI.Service.Concretes
         {
             var response = new BaseResponse<List<ProductCommuncationType>>();
 
-            var items = new List<ProductCommuncationType>()
+            try
             {
-                new ProductCommuncationType() { Id = Guid.NewGuid(), Name = "Konum", IsActive = true },
-                new ProductCommuncationType() { Id = Guid.NewGuid(), Name = "E-mail Adresi", IsActive = true },
-                new ProductCommuncationType() { Id = Guid.NewGuid(), Name = "Telefon Numarası", IsActive = true }
-            };
+                var items = new List<ProductCommuncationType>()
+                {
+                    new ProductCommuncationType() { Id = Guid.NewGuid(), Name = "Konum", IsActive = true },
+                    new ProductCommuncationType() { Id = Guid.NewGuid(), Name = "E-mail Adresi", IsActive = true },
+                    new ProductCommuncationType() { Id = Guid.NewGuid(), Name = "Telefon Numarası", IsActive = true }
+                };
 
-            items.ForEach(q =>
+                items.ForEach(q =>
+                {
+                    _productCommuncationTypeRepository.Add(q);
+                });
+
+                response.Data = items;
+                response.SetMessage("transaction is success", true);
+            }
+            catch (Exception)
             {
-                _productCommuncationTypeRepository.Add(q);
-            });
+                response.SetMessage(ConstantMessage.ExceptionMessage);
+            }
 
-            response.Data = items;
-            response.SetMessage("transaction is success", true);
+            return response;
+        }
+
+        public BaseResponse<List<ProductCommuncationType>> GetCommunicationType()
+        {
+            var response = new BaseResponse<List<ProductCommuncationType>>();
+
+            try
+            {
+                response.Data = _productCommuncationTypeRepository.GetAll(q => q.IsActive);
+                response.SetMessage("transaction is success", true);
+            }
+            catch (Exception)
+            {
+                response.SetMessage(ConstantMessage.ExceptionMessage);
+            }
 
             return response;
         }

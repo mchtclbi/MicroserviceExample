@@ -7,6 +7,6 @@ namespace Neredekal.ProductAPI.Models.Entities
     {
         public Guid ProductId { get; set; }
         public Guid TypeId { get; set; }
-        public object Value { get; set; }
+        public string Value { get; set; }
     }
 }

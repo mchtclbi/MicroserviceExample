@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Neredekal.ProductAPI.Models.Response
 {
     public class GetProductDetailResponse
     {
+        public Guid Id { get; set; }
         public string AuthorizedName { get; set; }
         public string AuthorizedSurname { get; set; }
         public string CompanyTitle { get; set; }

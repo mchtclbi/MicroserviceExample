@@ -18,5 +18,7 @@ namespace Neredekal.ProductAPI.Service.Interfaces
         public BaseResponse<List<GetProductDetailResponse>> GetProductDetail(GetProductDetailRequest request);
 
         public BaseResponse<List<ProductCommuncationType>> CreateCommunicationType();
+        
+        public BaseResponse<List<ProductCommuncationType>> GetCommunicationType();
     }
 }
