@@ -1,4 +1,6 @@
+using Serilog;
 using System.Text;
+using Neredekal.Application.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Neredekal.AuthAPI.Service.Concretes;
 using Neredekal.AuthAPI.Service.Interfaces;
@@ -7,6 +9,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+new ConfigureLogging().Set();
+builder.Host.UseSerilog();
 
 builder.Services.AddAuthentication(options =>
 {

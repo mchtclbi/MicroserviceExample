@@ -1,4 +1,5 @@
-﻿using Neredekal.Data.Concretes;
+﻿using Serilog;
+using Neredekal.Data.Concretes;
 using Neredekal.Data.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Neredekal.ProductAPI.Models;
@@ -14,6 +15,7 @@ namespace Neredekal.ProductAPI.Service.Concretes
 {
     public class ProductService : IProductService
     {
+        private readonly ILogger _logger;
         private readonly IHttpContextAccessor _httpContext;
         private readonly IRabbitMQSProducer _rabbitMQSProducer;
 
@@ -22,9 +24,9 @@ namespace Neredekal.ProductAPI.Service.Concretes
         private readonly IMongoRepository<ProductCommunication> _productCommunicationRepository;
         private readonly IMongoRepository<ProductCommuncationType> _productCommuncationTypeRepository;
 
-
-        public ProductService(IHttpContextAccessor httpContext, IRabbitMQSProducer rabbitMQSProducer)
+        public ProductService(ILogger logger, IHttpContextAccessor httpContext, IRabbitMQSProducer rabbitMQSProducer)
         {
+            _logger = logger;
             _httpContext = httpContext;
             _rabbitMQSProducer = rabbitMQSProducer;
 
@@ -68,9 +70,10 @@ namespace Neredekal.ProductAPI.Service.Concretes
 
                 response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
             }
 
             return response;
@@ -92,9 +95,10 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 _productRepository.Delete(product);
                 response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
             }
 
             return response;
@@ -120,9 +124,10 @@ namespace Neredekal.ProductAPI.Service.Concretes
 
                 response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
             }
 
             return response;
@@ -144,9 +149,10 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 _productCommunicationRepository.Delete(productCommunication);
                 response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
             }
 
             return response;
@@ -173,9 +179,10 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 response.Data = data;
                 response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
             }
 
             return response;
@@ -215,9 +222,10 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 response.Data = data;
                 response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
             }
 
             return response;
@@ -244,9 +252,10 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 response.Data = items;
                 response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
             }
 
             return response;
@@ -261,9 +270,10 @@ namespace Neredekal.ProductAPI.Service.Concretes
                 response.Data = _productCommuncationTypeRepository.GetAll(q => q.IsActive);
                 response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
             }
 
             return response;
@@ -296,9 +306,47 @@ namespace Neredekal.ProductAPI.Service.Concretes
 
                 response.SetMessage(ConstantMessage.TransactionSuccess, true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
+            }
+
+            return response;
+        }
+
+        public BaseResponse<List<GetReportDemandResponse>> GetReportDemand(GetReportDemandRequest request)
+        {
+            var response = new BaseResponse<List<GetReportDemandResponse>>();
+
+            try
+            {
+                var token = GetTokenWithHeader();
+                if (token is null)
+                {
+                    response.SetMessage("transaction is fail");
+                    return response;
+                }
+
+                var userId = Guid.Parse(new TokenService().GetUserIdWithToken(token));
+
+                response.Data = new List<GetReportDemandResponse>();
+
+                _reportDemandRepository.GetAll(q => q.UserId == userId && q.IsActive).ForEach(q =>
+                {
+                    response.Data.Add(new GetReportDemandResponse()
+                    {
+                        Status = GetReportDemandStatus(q.Status),
+                        DemandDate = q.DemandDate
+                    });
+                });
+
+                response.SetMessage(ConstantMessage.TransactionSuccess, true);
+            }
+            catch (Exception ex)
+            {
+                response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
             }
 
             return response;
@@ -312,6 +360,19 @@ namespace Neredekal.ProductAPI.Service.Concretes
             if (result.HasValue && !result.Value) return null;
 
             return token.ToString().Split("Bearer ").Last();
+        }
+
+        private string GetReportDemandStatus(ReportDemandStatus status)
+        {
+            switch (status)
+            {
+                case ReportDemandStatus.Preparing:
+                    return "Hazırlanıyor";
+                case ReportDemandStatus.Completed:
+                    return "Tamamlandı";
+                default:
+                    return string.Empty;
+            }
         }
     }
 }

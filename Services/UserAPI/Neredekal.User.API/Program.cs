@@ -1,7 +1,12 @@
+using Serilog;
+using Neredekal.Application.Logging;
 using Neredekal.UserAPI.Service.Concretes;
 using Neredekal.UserAPI.Service.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+new ConfigureLogging().Set();
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 

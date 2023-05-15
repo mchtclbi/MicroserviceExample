@@ -1,4 +1,5 @@
-﻿using Neredekal.UserAPI.Models;
+﻿using Serilog;
+using Neredekal.UserAPI.Models;
 using Neredekal.Data.Concretes;
 using Neredekal.Data.Interfaces;
 using Neredekal.Application.Helper;
@@ -12,10 +13,14 @@ namespace Neredekal.UserAPI.Service.Concretes
 {
     public class UserService : IUserService
     {
+        private readonly ILogger _logger;
+
         private readonly IMongoRepository<User> _userRepository;
 
-        public UserService()
+        public UserService(ILogger logger)
         {
+            _logger = logger;
+
             _userRepository = new MongoRepository<User>();
         }
 
@@ -51,7 +56,7 @@ namespace Neredekal.UserAPI.Service.Concretes
             {
                 var passwordHash = Encrypt.MD5(request.Password);
 
-                var user = _userRepository.Get(q => q.EMail.Equals(request.UserName) 
+                var user = _userRepository.Get(q => q.EMail.Equals(request.UserName)
                 && q.Password.Equals(passwordHash)
                 && q.IsActive);
                 if (user is null)
@@ -66,12 +71,13 @@ namespace Neredekal.UserAPI.Service.Concretes
                     Id = user.Id,
                     Name = user.Name,
                     Surname = user.Surname,
-                    EMail= user.EMail
+                    EMail = user.EMail
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage(ConstantMessage.ExceptionMessage);
+                _logger.Error(ex, ex.Message);
             }
 
             return response;

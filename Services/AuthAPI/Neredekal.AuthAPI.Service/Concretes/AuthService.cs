@@ -1,4 +1,5 @@
-﻿using RestSharp;
+﻿using Serilog;
+using RestSharp;
 using System.Text;
 using Neredekal.RestHelper;
 using System.Security.Claims;
@@ -17,12 +18,16 @@ namespace Neredekal.AuthAPI.Service.Concretes
 {
     public class AuthService : IAuthService
     {
+        private readonly ILogger _logger;
+
         private readonly JWTModel _jwtModel;
         private readonly UserApiUrl _userApiUrl;
         private readonly IConfiguration _configuration;
 
-        public AuthService(IConfiguration configuration)
+        public AuthService(ILogger logger, IConfiguration configuration)
         {
+            _logger = logger;
+
             _configuration = configuration;
             _jwtModel ??= _configuration.GetSection("JWt").Get<JWTModel>();
             _userApiUrl ??= _configuration.GetSection("Url").GetSection("UserApi").Get<UserApiUrl>();
@@ -56,9 +61,10 @@ namespace Neredekal.AuthAPI.Service.Concretes
                     Token = CreateJWTToken(serviceResponse.Data.Data.Id)
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetMessage("Please try again later!");
+                _logger.Error(ex, ex.Message);
             }
 
             return response;

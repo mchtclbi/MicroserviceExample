@@ -48,5 +48,9 @@ namespace Neredekal.Product.API.Controllers
 
         [HttpPost("api/product/report")]
         public IActionResult CreateNewReportDemand() => Ok(_productService.CreateNewReportDemand());
+
+        [HttpGet("api/product/report")]
+        public IActionResult GetReportDemand([FromBody] GetReportDemandRequest request) 
+            => Ok(_productService.GetReportDemand(request));
     }
 }

@@ -1,10 +1,14 @@
+using Serilog;
 using Ocelot.Middleware;
 using Ocelot.DependencyInjection;
+using Neredekal.Application.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("ocelot.json");
 
+new ConfigureLogging().Set();
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 

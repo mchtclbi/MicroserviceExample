@@ -16,4 +16,8 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\.shared\Neredekal.Application\Neredekal.Application.csproj" />
+  </ItemGroup>
+
 </Project>
