@@ -41,7 +41,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neredekal.ProductAPI.Servic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neredekal.Product.API", "Services\ProductAPI\Neredekal.Product.API\Neredekal.Product.API.csproj", "{C1AB63D3-7742-4A62-A6F8-76E96643854A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neredekal.ProductAPI.Consumer", "Services\ProductAPI\Neredekal.ProductAPI.Consumer\Neredekal.ProductAPI.Consumer.csproj", "{16F226B3-1C94-4483-A8C0-5B5E8BA33059}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neredekal.ProductAPI.Consumer", "Services\ProductAPI\Neredekal.ProductAPI.Consumer\Neredekal.ProductAPI.Consumer.csproj", "{16F226B3-1C94-4483-A8C0-5B5E8BA33059}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{08ED6667-3083-4BFC-80FE-5B5BD0C6C747}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Desktop\readme.md = ..\..\..\Desktop\readme.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
